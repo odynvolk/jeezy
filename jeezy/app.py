@@ -1,60 +1,59 @@
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
-from langchain.llms import CTransformers
-from langchain.prompts import PromptTemplate
-from langchain.chains import RetrievalQA
-
-from langchain.schema.document import Document
-
+import asyncio
 import os
+import random
+import time
 
-os.environ["TOKENIZERS_PARALLELISM"] = "true"
-
-
-def analyze(text_to_analyze: str) -> FAISS:
-    splitter = RecursiveCharacterTextSplitter(chunk_size=1024,
-                                              chunk_overlap=50)
-    doc = Document(page_content=text_to_analyze, metadata={"source": "local"})
-    texts = splitter.split_documents([doc])
-    embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2",
-        model_kwargs={'device': 'cpu'})
-    return FAISS.from_documents(texts, embeddings)
+from dotenv import load_dotenv
+from timeit import default_timer as timer
+import nodriver as uc
 
 
-def build_llm(db: FAISS) -> RetrievalQA:
-    """
-    Create an AI Chat large language model prepared
-    to answer questions about content of the database
-    """
+load_dotenv()
 
-    template = """
-    Use information from the following text to answer questions about its content.
-    If you do not know the answer, say that you do not know, and do not try to make up an answer.
-    Context: {context}
-    Question: {question}
-    Only return the helpful answer below and nothing else.
-    Helpful answer:
-    """
+class Jeezy(object):
+    def __init__(self):
+        self.user_agents = []
+        self.urls = []
 
-    llm = CTransformers(model=os.getenv("MODEL_PATH"),
-                        model_type=os.getenv("MODEL_TYPE"),
-                        config={'max_new_tokens': 256, 'temperature': 0.3})
-    retriever = db.as_retriever(search_kwargs={'k': 1})
-    prompt = PromptTemplate(
-        template=template,
-        input_variables=['context', 'question'])
+        with open(os.getenv("USER_AGENTS"), "r") as file:
+            for line in file:
+                self.user_agents.append(line.strip())
 
-    return RetrievalQA.from_chain_type(llm=llm, chain_type='stuff', retriever=retriever, return_source_documents=False,
-                                       chain_type_kwargs={'prompt': prompt})
+        with open(os.getenv("URLS"), "r") as file:
+            for line in file:
+                self.urls.append(line.strip())
 
 
-def summarize_article(query: str, text_to_analyze: str) -> dict:
-    db = analyze(text_to_analyze)
-    qa_llm = build_llm(db)
-    output = qa_llm({"query": query})
-    print("===== output ====")
-    print(output)
+    async def run(self):
+        print("Run")
+        for x in range(3):
+          user_agent = random.sample(self.user_agents, 1)[0]
+          print(user_agent)
+          try:
+              # browser_args = [f'--user-agent={user_agent}', f'--proxy-server={proxy}', "--headless"]
+              browser_args = [f'--user-agent={user_agent}', "--headless"]
+              driver = await uc.start(browser_args=browser_args)
+              tab = await driver.get("https://www.youtube.com/watch?v=HX4abVLOeX4")
+              await driver.sleep(7)
+              await tab.scroll_down(200)
+              await driver.sleep(1)
+              reject = await tab.find("Reject all", best_match=True)
+              await driver.sleep(2)
+              await tab.scroll_down(100)
+              await reject.mouse_click()
+              await tab.scroll_down(100)
+              await driver.sleep(1300)
+              driver.stop()
 
-    return output
+              time.sleep(30 * 1000)
+          except Exception as e:
+            print(e)
+
+if __name__ == "__main__":
+    import traceback
+
+    try:
+        jeezy = Jeezy()
+        asyncio.run(jeezy.run())
+    except Exception:
+        print(traceback.format_exc())

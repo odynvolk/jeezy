@@ -12,6 +12,7 @@ load_dotenv()
 
 class Jeezy(object):
     def __init__(self):
+        self.times = int(os.getenv("TIMES"))
         self.user_agents = []
         self.urls = []
 
@@ -26,9 +27,12 @@ class Jeezy(object):
 
     async def run(self):
         print("Run")
-        for x in range(5):
+        for x in range(self.times):
             user_agent = random.sample(self.user_agents, 1)[0]
             url = random.sample(self.urls, 1)[0]
+            print(user_agent)
+            print(url)
+            print("------------------------------------------")
             try:
                 # browser_args = [f'--user-agent={user_agent}', f'--proxy-server={proxy}', "--headless"]
                 browser_args = [f'--user-agent={user_agent}', "--headless"]
@@ -36,11 +40,11 @@ class Jeezy(object):
                 tab = await driver.get(url)
                 await driver.sleep(7)
                 await tab.scroll_down(200)
-                await driver.sleep(1)
+                await driver.sleep(2)
                 reject = await tab.find("Reject all", best_match=True)
                 await driver.sleep(2)
                 await tab.scroll_down(100)
-                await reject.mouse_click()
+                await reject.click()
                 await driver.sleep(2)
                 await tab.scroll_up(300)
                 await driver.sleep(1300)

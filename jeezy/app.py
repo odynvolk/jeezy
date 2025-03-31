@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import os
 import random
 import time
@@ -13,6 +14,8 @@ load_dotenv()
 class Jeezy(object):
     def __init__(self):
         self.times = int(os.getenv("TIMES"))
+        self.stay_on_page_in_minutes = int(os.getenv("STAY_ON_PAGE_IN_MINUTES"))
+        self.sleep_between_runs_in_minutes = int(os.getenv("SLEEP_BETWEEN_RUNS_IN_MINUTES"))
         self.user_agents = []
         self.urls = []
 
@@ -26,7 +29,9 @@ class Jeezy(object):
 
 
     async def run(self):
-        print("Run")
+        self.log("STARTING!")
+        start = timer()
+
         for x in range(self.times):
             user_agent = random.sample(self.user_agents, 1)[0]
             url = random.sample(self.urls, 1)[0]
@@ -42,20 +47,28 @@ class Jeezy(object):
                 await tab.scroll_down(200)
                 await driver.sleep(2)
                 reject = await tab.find("Reject all", best_match=True)
-                await driver.sleep(2)
-                await tab.scroll_down(100)
-                await reject.click()
-                await driver.sleep(2)
+                if reject:
+                  await driver.sleep(2)
+                  await tab.scroll_down(100)
+                  await reject.click()
+                  await driver.sleep(2)
+
                 await tab.scroll_up(300)
-                await driver.sleep(1300)
+                await driver.sleep(self.stay_on_page_in_minutes * 60)
                 driver.stop()
 
-                time.sleep(120 * 60)
+                time.sleep(self.sleep_between_runs_in_minutes * 60)
             except Exception as e:
               print(e)
 
-        print("Done!")
+        self.log("DONE!")
 
+        end = timer()
+        self.log(f"DURATION: {int(end - start) / 60} MINUTES.")
+
+    def log(self, message):
+      now = datetime.datetime.now()
+      print(f'{now.strftime("%Y-%m-%dT%H:%M:%SZ")} {message}')
 
 if __name__ == "__main__":
     import traceback

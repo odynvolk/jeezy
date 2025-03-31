@@ -31,10 +31,11 @@ $ pip install -r requirements.txt
 Create a `.env` file with the following properties.
 
 ```
-# LLM
+TIMES=5
+STAY_ON_PAGE_IN_MINUTES=20
+SLEEP_BETWEEN_RUNS_IN_MINUTES=60
 USER_AGENTS=<path-to-file-with-user-agents>
 URLS=<path-to-file-with-urls>
-
 
 ## Usage
 

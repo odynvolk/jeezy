@@ -27,7 +27,6 @@ class Jeezy(object):
             for line in file:
                 self.urls.append(line.strip())
 
-
     async def run(self):
         self.log("STARTING!")
         start = timer()
@@ -35,8 +34,8 @@ class Jeezy(object):
         for x in range(self.times):
             user_agent = random.sample(self.user_agents, 1)[0]
             url = random.sample(self.urls, 1)[0]
-            print(user_agent)
-            print(url)
+            self.log(f'USER AGENT: {user_agent}')
+            self.log(f'URL: {url}')
             print("------------------------------------------")
             try:
                 # browser_args = [f'--user-agent={user_agent}', f'--proxy-server={proxy}', "--headless"]
@@ -54,6 +53,7 @@ class Jeezy(object):
                   await driver.sleep(2)
 
                 await tab.scroll_up(300)
+                self.log(f'STAYING ON PAGE {self.stay_on_page_in_minutes} MINUTES')
                 await driver.sleep(self.stay_on_page_in_minutes * 60)
                 driver.stop()
 

@@ -1,6 +1,6 @@
 # jeezy
 
-A video viewer
+A video viewer bot because sometimes your just too lazy to watch
 
 ## Prerequisites:
 
@@ -32,8 +32,9 @@ Create a `.env` file with the following properties.
 
 ```
 TIMES=5
-STAY_ON_PAGE_IN_MINUTES=20
-SLEEP_BETWEEN_RUNS_IN_MINUTES=60
+STAY_ON_PAGE_IN_MINUTES=<number>
+SLEEP_BETWEEN_RUNS_IN_MINUTES=<number>
+STAY_ON_RECOMMENDED_PAGE_IN_MINUTES=<number>
 USER_AGENTS=<path-to-file-with-user-agents>
 URLS=<path-to-file-with-urls>
 
